@@ -1,0 +1,44 @@
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: white;
+  border-right: 1px solid #e5e5e5;
+  padding: 25px;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 40px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.menu-item {
+  font-size: 15px;
+  color: #555;
+  cursor: pointer;
+}
+
+.menu-item.active {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.founder-btn {
+  margin-top: 40px;
+  width: 100%;
+  padding: 12px;
+  background: #17a34a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}

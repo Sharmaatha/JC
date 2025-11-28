@@ -1,0 +1,161 @@
+.signal-card {
+  background: white;
+  border: 1px solid #eee;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 18px;
+}
+
+.signal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #dce4ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 700;
+  color: #2e47cc;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.signal-info {
+  flex: 1;
+}
+
+.signal-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: black;
+  font-weight: bold;
+}
+
+.signal-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.company-tag {
+  background: #fff7d6;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.signal-badge {
+  background: #10b981;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.analyzing {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.score-tag.strong {
+  background: #d9fcd6;
+  color: #0f8a00;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.score-tag.moderate {
+  background: #ffe5b5;
+  color: #d97d00;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.score-tag.weak {
+  background: #fee;
+  color: #c00;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.signal-tagline {
+  color: #0f0c0c;
+  font-weight: 500;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.signal-description {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.signal-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 13px;
+  color: #888;
+  margin-top: 8px;
+}
+
+.meta-date,
+.meta-votes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: bold;
+  color: black;
+}
+
+.topic-list {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.topic-chip {
+  background: #eef2ff;
+  color: #4255ff;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}

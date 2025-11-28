@@ -1,0 +1,23 @@
+.layout {
+  display: flex;
+}
+
+.content {
+  margin-left: 260px;
+  padding: 40px;
+  background: #ffffff;   
+  min-height: 100vh;
+  width: 100%;
+  color: #000;          
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 30px;
+}
+
+.loading {
+  font-size: 20px;
+  color: #999;
+}

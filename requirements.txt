@@ -12,6 +12,7 @@ langchain
 axios
 langchain-groq
 playwright
+curl-cffi
 langchain-core
 celery
 redis

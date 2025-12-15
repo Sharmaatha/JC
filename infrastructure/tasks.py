@@ -1,31 +1,39 @@
 """
 Celery tasks for Product Hunt scraping, CELERY WORKERS
 """
-from celery_app import celery_app
+from infrastructure.celery_app import celery_app
 from datetime import datetime, timedelta
-from scrape_ph import scrape_producthunt_only
-from enrich_social import enrich_social_links
-from analyze_signals import analyze_signals
+from core.scrape_ph import scrape_producthunt_only, scrape_producthunt_date_streamlined
+from core.enrich_social import enrich_social_links
+from core.analyze_signals import analyze_signals
 import traceback
 
 
 @celery_app.task(name="tasks.scrape_task", bind=True)
-def scrape_task(self, date_str: str, limit: int = 3):
+def scrape_task(self, date_str: str, limit: int = 50, use_streamlined: bool = True):
     """
-    STEP 1: Scrape Product Hunt
+    STEP 1: Scrape Product Hunt (None = unlimited)
+    use_streamlined=True uses optimized complexity-aware scraping
     """
     try:
-        print(f"[CELERY TASK] Starting scrape for date: {date_str}, limit: {limit}")
-        product_ids = scrape_producthunt_only(date_str, limit=limit)
-        print(f"[CELERY TASK] Scrape completed. Product IDs: {product_ids}")
+        scraper_type = "streamlined" if use_streamlined else "standard"
+        print(f"[CELERY] Starting {scraper_type} scrape for {date_str}, limit: {limit or 'UNLIMITED'}")
+
+        if use_streamlined:
+            product_ids = scrape_producthunt_date_streamlined(date_str, max_products=limit)
+        else:
+            product_ids = scrape_producthunt_only(date_str, limit=limit)
+
+        print(f"[CELERY] {scraper_type.title()} scrape completed. Products: {len(product_ids)}")
         return {
             "status": "success",
             "product_ids": product_ids,
             "count": len(product_ids),
-            "date": date_str
+            "date": date_str,
+            "scraper_type": scraper_type
         }
     except Exception as e:
-        print(f"[CELERY TASK] Scrape failed: {e}")
+        print(f"[CELERY] Scrape failed: {e}")
         traceback.print_exc()
         self.update_state(state="FAILURE", meta={"error": str(e)})
         raise
@@ -72,49 +80,36 @@ def analyze_task(self, product_ids=None, limit=None):
 
 
 @celery_app.task(name="tasks.full_pipeline_task", bind=True)
-def full_pipeline_task(self, date_str: str, limit: int = 10):
+def full_pipeline_task(self, date_str: str, limit: int = None):
     """
-    Run all 3 steps in sequence
+    Run all 3 steps (limit=None for unlimited)
     """
     try:
-        print(f"[CELERY TASK] Starting full pipeline for date: {date_str}")
-        
-        # Step 1: Scrape
-        print("[CELERY TASK] Step 1/3: Scraping...")
+        print(f"[CELERY] Starting full pipeline for {date_str}, limit: {limit or 'UNLIMITED'}")
+
         product_ids = scrape_producthunt_only(date_str, limit=limit)
-        
+
         if not product_ids:
-            print("[CELERY TASK] No products found, aborting pipeline")
             return {
                 "status": "success",
-                "steps_completed": [1],
                 "message": "No products found",
                 "product_ids": []
             }
-        
-        # Step 2: Enrich
-        print(f"[CELERY TASK] Step 2/3: Enriching {len(product_ids)} products...")
+
         enrich_social_links(product_ids=product_ids)
-        
-        # Step 3: Analyze
-        print(f"[CELERY TASK] Step 3/3: Analyzing {len(product_ids)} products...")
         analyze_signals(product_ids=product_ids)
-        
-        print("[CELERY TASK] Full pipeline completed!")
+
         return {
             "status": "success",
-            "steps_completed": [1, 2, 3],
             "message": "Full pipeline completed",
             "product_ids": product_ids,
             "products_processed": len(product_ids),
             "date": date_str
         }
     except Exception as e:
-        print(f"[CELERY TASK] Pipeline failed: {e}")
+        print(f"[CELERY] Pipeline failed: {e}")
         traceback.print_exc()
-        self.update_state(state="FAILURE", meta={"error": str(e)})
         raise
-
 
 @celery_app.task(name="tasks.auto_scrape_yesterday")
 def auto_scrape_yesterday():
@@ -124,9 +119,9 @@ def auto_scrape_yesterday():
     try:
         yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
         print(f"[CELERY AUTO-TASK] Starting automatic scrape for {yesterday}")
-        
+
         product_ids = scrape_producthunt_only(yesterday, limit=3)
-        
+
         print(f"[CELERY AUTO-TASK] Auto scrape completed for {yesterday}. Products: {len(product_ids)}")
         return {
             "status": "success",
@@ -147,9 +142,9 @@ def auto_enrich_task():
     """
     try:
         print(f"[CELERY AUTO-TASK] Starting automatic social enrichment")
-        
+
         enrich_social_links(limit=10)
-        
+
         print(f"[CELERY AUTO-TASK] Auto enrichment completed")
         return {
             "status": "success",
@@ -169,9 +164,9 @@ def auto_analyze_task():
     """
     try:
         print(f"[CELERY AUTO-TASK] Starting automatic signal analysis")
-        
+
         analyze_signals(limit=10)
-        
+
         print(f"[CELERY AUTO-TASK] Auto analysis completed")
         return {
             "status": "success",

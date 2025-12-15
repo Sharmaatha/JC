@@ -17,7 +17,7 @@ celery_app = Celery(
     "product_hunt_scraper",
     broker=REDIS_URL,
     backend=REDIS_URL,
-    include=["tasks"] 
+    include=["infrastructure.tasks"]
 )
 
 # Celery configuration
@@ -27,9 +27,9 @@ celery_app.conf.update(
     result_serializer="json",
     timezone="UTC",
     enable_utc=True,
-    result_expires=3600,  
+    result_expires=3600,
     task_track_started=True,
-    task_time_limit=30 * 60,  
+    task_time_limit=30 * 60,
 )
 
 # Celery Beat schedule - Multiple cron jobs (6 hour cycles)

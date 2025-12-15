@@ -4,7 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from typing import Optional
 from datetime import date
 from contextlib import contextmanager
-from config import DB_CONFIG, CREATED_BY
+from infrastructure.config import DB_CONFIG, CREATED_BY
 from models.models import Base, Company, Product, ScrapeProgress
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.dialects.postgresql import JSONB

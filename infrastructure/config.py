@@ -33,5 +33,3 @@ CREATED_BY: str = get_env_variable('CREATED_BY', 'system_scraper')
 # API Configuration
 API_TIMEOUT: int = int(get_env_variable('API_TIMEOUT', '30'))
 MAX_RETRIES: int = int(get_env_variable('MAX_RETRIES', '3'))
-
-

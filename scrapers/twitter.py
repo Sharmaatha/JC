@@ -2,7 +2,7 @@
 import logging
 from typing import Optional, Dict, Any
 import requests
-from config import RAPIDAPI_KEY, API_TIMEOUT
+from infrastructure.config import RAPIDAPI_KEY, API_TIMEOUT
 
 logger = logging.getLogger(__name__)
 

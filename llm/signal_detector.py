@@ -4,7 +4,7 @@ from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
-from config import GROQ_API_KEY
+from infrastructure.config import GROQ_API_KEY
 
 logger = logging.getLogger(__name__)
 

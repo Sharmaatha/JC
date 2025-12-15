@@ -1,7 +1,7 @@
 import logging
 from typing import Optional, List
 from datetime import datetime
-from database import Database
+from infrastructure.database import Database
 from models.models import Product
 from scrapers.ph_social import ProductHuntSocialScraper
 from scrapers.linkedin import LinkedInScraper

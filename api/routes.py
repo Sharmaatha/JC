@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Query, HTTPException
 from sqlalchemy.orm import Session
-from database import SessionLocal
+from infrastructure.database import SessionLocal
 from models.models import Product
 from datetime import datetime
 from typing import Optional, List

@@ -2,7 +2,7 @@ import logging
 import re
 import requests
 from typing import Optional, Dict, Any, List
-from config import SERPER_API_KEY, API_TIMEOUT
+from infrastructure.config import SERPER_API_KEY, API_TIMEOUT
 
 logger = logging.getLogger(__name__)
 

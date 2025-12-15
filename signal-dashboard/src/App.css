@@ -29,15 +29,18 @@
   --max-content-width: 1120px;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', sans-serif;
   background: #f7f8fa;
   color: #1f2937;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
   font-weight: 400;
+  line-height: 1.5;
 }
 
 .layout::before {
@@ -107,28 +110,53 @@ body {
 h1, h2, h3, h4 {
   margin: 0;
   color: var(--text-900);
+  font-weight: 600;
+  letter-spacing: -0.025em;
 }
 
-h1 { font-size: 28px; line-height: 1.15; }
-h2 { font-size: 20px; }
-h3 { font-size: 16px; }
+h1 {
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
+}
+h2 {
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+h3 {
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+h4 {
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+}
 
 .btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 14px;
+  letter-spacing: 0.025em;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-900);
   cursor: pointer;
-  transition: box-shadow 160ms ease, transform 160ms ease, background 160ms ease;
+  transition: all 200ms ease;
+  box-shadow: var(--shadow-sm);
 }
 
-.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-light);
+}
 
 .btn-primary {
   background: linear-gradient(90deg, var(--primary), var(--primary-light));
@@ -501,8 +529,8 @@ h3 { font-size: 16px; }
   box-shadow: var(--shadow-sm);
 
   display: grid;
-  grid-template-columns: repeat(2, 1fr) repeat(2, minmax(120px, 1fr)) auto; /* Updated for 4 columns total */
-  gap: 20px 32px; /* Increased column gap for more space */
+  grid-template-columns: repeat(6, 1fr); /* 6 equal columns for all filter elements */
+  gap: 20px 24px; /* Adjusted gap for better spacing */
 }
 
 
@@ -713,4 +741,40 @@ h3 { font-size: 16px; }
   text-align: center;
   color: var(--muted);
   margin-top: 24px;
+}
+
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: all 160ms ease;
+  user-select: none;
+}
+
+.toggle-switch:hover {
+  border-color: rgba(37, 99, 235, 0.3);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
+}
+
+.toggle-switch input[type="checkbox"] {
+  display: none;
+}
+
+.toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-700);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toggle-switch input[type="checkbox"]:checked + .toggle-label {
+  color: var(--primary);
 }

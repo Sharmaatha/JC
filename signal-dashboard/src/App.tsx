@@ -31,6 +31,9 @@ export default function App() {
   const [sortBy, setSortBy] = useState("none");
   const [viewFilterDate, setViewFilterDate] = useState("");
 
+  // NEW: Unlimited scrape toggle
+  const [unlimitedScrape, setUnlimitedScrape] = useState(false);
+
   // Infinite scroll
   const [displayCount, setDisplayCount] = useState(10);
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -43,18 +46,43 @@ export default function App() {
   const [isPolling, setIsPolling] = useState(false);
   const pollingIntervalRef = useRef<number | null>(null);
 
+  // Loading timeout to prevent stuck loading states
+  const loadingTimeoutRef = useRef<number | null>(null);
+
   const load = async (dateFilter?: string) => {
     try {
       if (!isPolling) {
         setLoading(true);
       }
+
+      // Set a timeout to prevent infinite loading (30 seconds)
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+      loadingTimeoutRef.current = window.setTimeout(() => {
+        console.warn("Loading timeout reached, forcing loading state to false");
+        setLoading(false);
+        setScraping(false);
+      }, 30000);
+
       const res = await getSignals(dateFilter);
       const data = Array.isArray(res.data) ? res.data : res.data.data;
       setSignals(data ?? []);
       setLoading(false);
+
+      // Clear the timeout since loading completed successfully
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
     } catch (error) {
       console.error("Error loading signals:", error);
       setLoading(false);
+      // Clear timeout on error
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+        loadingTimeoutRef.current = null;
+      }
     }
   };
 
@@ -76,6 +104,7 @@ export default function App() {
       setViewFilterDate("");
       stopPolling();
       setDisplayCount(10);
+      setLoading(true); // Ensure loading state is set
       await load();
       return;
     }
@@ -83,6 +112,7 @@ export default function App() {
     setViewFilterDate(pickedDate);
     setScrapeError(null);
     setDisplayCount(10);
+    setLoading(true); // Set loading when starting date check
 
     try {
       const checkRes = await checkDateExists(pickedDate);
@@ -91,22 +121,30 @@ export default function App() {
       if (!checkRes.data.exists) {
         setScraping(true);
         setScrapeError(null);
+        setLoading(false); // Clear general loading when scraping starts
 
         try {
-          await scrapeDate(pickedDate);
+          // Pass unlimited flag to scrapeDate
+          await scrapeDate(pickedDate, unlimitedScrape);
+          setLoading(true); // Set loading for final data load
           await load(pickedDate);
           setScraping(false);
+          setLoading(false);
         } catch (error: any) {
           setScraping(false);
+          setLoading(false); // Ensure loading is cleared on error
           const errorMsg =
             error.response?.data?.detail || "Scraping failed. Please try again.";
           setScrapeError(errorMsg);
         }
       } else {
+        setLoading(true); // Ensure loading is set before load call
         await load(pickedDate);
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error checking date:", error);
+      setLoading(false); // Clear loading on error
     }
   };
 
@@ -123,6 +161,10 @@ export default function App() {
   useEffect(() => {
     return () => {
       stopPolling();
+      // Clear loading timeout on unmount
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -215,6 +257,7 @@ export default function App() {
     setViewFilterDate("");
     setScrapeError(null);
     setDisplayCount(10);
+    setUnlimitedScrape(false); // Reset unlimited toggle
     stopPolling();
     load();
   }
@@ -246,7 +289,11 @@ export default function App() {
             <span className="alert-icon">⏳</span>
             <div>
               <strong>Scraping in progress...</strong>
-              <p>Fetching Product Hunt data. This may take 2-5 minutes.</p>
+              <p>
+                {unlimitedScrape
+                  ? "Fetching ALL products for this date. This may take 5-15 minutes."
+                  : "Fetching Product Hunt data. This may take 2-5 minutes."}
+              </p>
             </div>
           </div>
         )}
@@ -301,8 +348,23 @@ export default function App() {
             </div>
           </div>
 
-          {/* ======= FILTER TOOLBAR (FirstSignal style) ======= */}
+          {/* ======= FILTER TOOLBAR ======= */}
           <div className="filter-toolbar">
+            {/* NEW: Unlimited Scrape Toggle */}
+            <div className="filter-col">
+              <label>Scrape Mode</label>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={unlimitedScrape}
+                  onChange={(e) => setUnlimitedScrape(e.target.checked)}
+                />
+                <span className="toggle-label">
+                  {unlimitedScrape ? "🔓 Unlimited" : "🔒 Limited (50)"}
+                </span>
+              </label>
+            </div>
+
             <div className="filter-col">
               <label>Date</label>
               <input
@@ -357,27 +419,29 @@ export default function App() {
               </select>
             </div>
 
-            <button
-              className="reset-btn-final reset-tooltip"
-              onClick={resetFilters}
-              aria-label="Refresh and reset filters"
-              data-tooltip="Refresh and reset filters"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            <div className="filter-col">
+              <label>&nbsp;</label>
+              <button
+                className="reset-btn-final reset-tooltip"
+                onClick={resetFilters}
+                aria-label="Reset filters"
+                data-tooltip="Reset filters"
               >
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
-              </svg>
-            </button>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Results display count */}
@@ -404,7 +468,7 @@ export default function App() {
             </div>
           )}
         </div>
-      {/* END content-inner */}
+        {/* END content-inner */}
       </div>
     </div>
   );

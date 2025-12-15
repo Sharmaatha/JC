@@ -29,7 +29,6 @@ export default function App() {
   const [scoreFilter, setScoreFilter] = useState("all");
   const [signalFilter, setSignalFilter] = useState("all");
   const [sortBy, setSortBy] = useState("none");
-  const [selectedDate, setSelectedDate] = useState("");
   const [viewFilterDate, setViewFilterDate] = useState("");
 
   // Infinite scroll
@@ -72,16 +71,16 @@ export default function App() {
     return products.every((p) => p.status === 2);
   };
 
-  const handleDatePickerChange = async (pickedDate: string) => {
+  const handleViewFilterDateChange = async (pickedDate: string) => {
     if (!pickedDate) {
-      setSelectedDate("");
+      setViewFilterDate("");
       stopPolling();
       setDisplayCount(10);
       await load();
       return;
     }
 
-    setSelectedDate(pickedDate);
+    setViewFilterDate(pickedDate);
     setScrapeError(null);
     setDisplayCount(10);
 
@@ -109,11 +108,6 @@ export default function App() {
     } catch (error) {
       console.error("Error checking date:", error);
     }
-  };
-
-  const handleViewFilterDateChange = (pickedDate: string) => {
-    setViewFilterDate(pickedDate);
-    setDisplayCount(10);
   };
 
   useEffect(() => {
@@ -218,7 +212,6 @@ export default function App() {
     setScoreFilter("all");
     setSignalFilter("all");
     setSortBy("none");
-    setSelectedDate("");
     setViewFilterDate("");
     setScrapeError(null);
     setDisplayCount(10);
@@ -284,6 +277,7 @@ export default function App() {
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
+                  fill="none"
                 />
               </svg>
 
@@ -310,17 +304,7 @@ export default function App() {
           {/* ======= FILTER TOOLBAR (FirstSignal style) ======= */}
           <div className="filter-toolbar">
             <div className="filter-col">
-              <label>Scrape</label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => handleDatePickerChange(e.target.value)}
-                className="filter-input"
-              />
-            </div>
-
-            <div className="filter-col">
-              <label>Filter</label>
+              <label>Date</label>
               <input
                 type="date"
                 value={viewFilterDate}
@@ -373,8 +357,26 @@ export default function App() {
               </select>
             </div>
 
-            <button className="reset-btn-final" onClick={resetFilters}>
-              Reset
+            <button
+              className="reset-btn-final reset-tooltip"
+              onClick={resetFilters}
+              aria-label="Refresh and reset filters"
+              data-tooltip="Refresh and reset filters"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+              </svg>
             </button>
           </div>
 

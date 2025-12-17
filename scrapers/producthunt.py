@@ -23,9 +23,9 @@ class ProductHuntScraper:
         }
         # ProductHunt GraphQL API complexity limits
         self.max_complexity = 500000  # Hard limit
-        self.safe_complexity_limit = 400000  # Stay under 80% to be safe
+        self.safe_complexity_limit = 450000  # Stay well under the 500k limit
         # Estimated complexity per product (conservative estimate)
-        self.complexity_per_product = 3000
+        self.complexity_per_product = 4000
         # Calculate safe batch size
         self.max_batch_size = min(50, self.safe_complexity_limit // self.complexity_per_product)
 
@@ -148,8 +148,8 @@ class ProductHuntScraper:
         if limit is None:
             batch_size = self.max_batch_size
         else:
-            # Ensure limit doesn't exceed complexity constraints
-            batch_size = min(limit, self.max_batch_size)
+            # For specific limits, allow full requested size (bypass complexity limits)
+            batch_size = limit
 
         variables = {
             "postedAfter": posted_after,
@@ -268,8 +268,14 @@ class ProductHuntScraper:
         while has_next_page:
             logger.debug(f"Fetching page {page_num} (cursor: {cursor or 'initial'})")
 
-            # Use safe batch size for pagination
-            result = self.get_products_by_date(date, limit=None, after_cursor=cursor)
+            # On first request, try to get all products at once if max_products is reasonable
+            if page_num == 1 and max_products and max_products <= self.max_batch_size:
+                batch_limit = max_products
+                logger.info(f"First request: Attempting to fetch all {max_products} products in one batch")
+            else:
+                batch_limit = None  # Use safe batch size
+
+            result = self.get_products_by_date(date, limit=batch_limit, after_cursor=cursor)
 
             products = result.get("products", [])
             cursor = result.get("endCursor")

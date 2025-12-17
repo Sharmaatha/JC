@@ -1,6 +1,41 @@
 import React from "react";
 import "./SignalCard.css";
 
+// Skeleton loading component
+export function SkeletonCard() {
+  return (
+    <article className="signal-card skeleton" role="article">
+      <div className="signal-header">
+        <div className="avatar skeleton-avatar" aria-hidden></div>
+
+        <div className="signal-info">
+          <div className="signal-name skeleton-text skeleton-title"></div>
+
+          <div className="signal-tags">
+            <span className="skeleton-badge"></span>
+            <span className="skeleton-badge skeleton-score"></span>
+          </div>
+
+          <div className="signal-tagline skeleton-text"></div>
+          <div className="signal-description skeleton-text"></div>
+
+          <div className="signal-meta" aria-hidden>
+            <span className="meta-date skeleton-text skeleton-meta"></span>
+            <span className="meta-votes skeleton-text skeleton-meta"></span>
+          </div>
+        </div>
+      </div>
+
+      <div className="topic-list" aria-label="topics">
+        <span className="topic-chip skeleton-chip"></span>
+        <span className="topic-chip skeleton-chip"></span>
+        <span className="topic-chip skeleton-chip"></span>
+        <span className="topic-chip skeleton-chip"></span>
+      </div>
+    </article>
+  );
+}
+
 export default function SignalCard({ item }) {
   const formatDate = (dateStr) => {
     if (!dateStr) return "";

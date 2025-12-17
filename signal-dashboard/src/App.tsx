@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { getSignals, checkDateExists, scrapeDate } from "./api";
-import SignalCard from "./components/SignalCard";
+import SignalCard, { SkeletonCard } from "./components/SignalCard";
 import "./App.css";
 
 interface SignalProduct {
@@ -262,13 +262,124 @@ export default function App() {
     load();
   }
 
+  // Render skeleton cards during loading
+  const renderSkeletonCards = () => {
+    const skeletonCards = [];
+    for (let i = 0; i < 10; i++) { // Show 10 skeleton cards
+      skeletonCards.push(<SkeletonCard key={`skeleton-${i}`} />);
+    }
+    return skeletonCards;
+  };
+
   if (loading) {
     return (
       <div className="layout">
         <div className="content">
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>Loading products...</p>
+          <div className="header-section">
+            <h1>Startup Signal Dashboard</h1>
+            <p className="subtitle">Track and analyze emerging startup signals</p>
+          </div>
+
+          {/* Products wrapper - all controls + grid inside constrained width */}
+          <div className="content-inner">
+            {/* ======= CLEAN TOP SEARCH BAR ======= */}
+            <div className="top-search-container">
+              <div className="top-search-box">
+                <svg
+                  className="search-icon"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18.5 18.5l-4-4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    fill="none"
+                  />
+                </svg>
+
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="top-search-input skeleton-input"
+                  disabled
+                />
+              </div>
+            </div>
+
+            {/* ======= FILTER TOOLBAR ======= */}
+            <div className="filter-toolbar">
+              <div className="filter-col">
+                <label>Scrape Mode</label>
+                <label className="toggle-switch">
+                  <input type="checkbox" disabled />
+                  <span className="toggle-label">
+                    🔓 Unlimited
+                  </span>
+                </label>
+              </div>
+
+              <div className="filter-col">
+                <label>Date</label>
+                <input
+                  type="date"
+                  className="filter-input skeleton-input"
+                  disabled
+                />
+              </div>
+
+              <div className="filter-col">
+                <label>Type</label>
+                <select className="filter-input skeleton-input" disabled>
+                  <option>All</option>
+                </select>
+              </div>
+
+              <div className="filter-col">
+                <label>Score</label>
+                <select className="filter-input skeleton-input" disabled>
+                  <option>All</option>
+                </select>
+              </div>
+
+              <div className="filter-col">
+                <label>Sort</label>
+                <select className="filter-input skeleton-input" disabled>
+                  <option>Default</option>
+                </select>
+              </div>
+
+              <div className="filter-col">
+                <label>&nbsp;</label>
+                <button className="reset-btn-final" disabled>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Results display count */}
+            <div className="results-info">
+              <span className="skeleton-text skeleton-results">Loading products...</span>
+            </div>
+
+            {/* Skeleton cards grid */}
+            <div className="signals-grid">
+              {renderSkeletonCards()}
+            </div>
           </div>
         </div>
       </div>

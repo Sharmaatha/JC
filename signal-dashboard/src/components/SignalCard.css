@@ -249,3 +249,74 @@
   opacity: 0.6;
   pointer-events: none;
 }
+
+/* Skeleton Loading Styles */
+.skeleton {
+  pointer-events: none;
+}
+
+.skeleton-avatar {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  width: 56px;
+  height: 56px;
+  border-radius: calc(var(--radius) - 2px);
+  flex-shrink: 0;
+}
+
+.skeleton-text {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-title {
+  height: 20px;
+  width: 70%;
+  margin-bottom: 10px;
+}
+
+.skeleton-badge {
+  height: 20px;
+  width: 60px;
+  border-radius: 6px;
+  margin-right: 8px;
+}
+
+.skeleton-score {
+  width: 80px;
+}
+
+.signal-tagline.skeleton-text,
+.signal-description.skeleton-text {
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+.signal-description.skeleton-text {
+  width: 90%;
+  margin-bottom: 12px;
+}
+
+.skeleton-meta {
+  height: 20px;
+  width: 80px;
+  margin-right: 16px;
+}
+
+.skeleton-chip {
+  height: 24px;
+  width: 50px;
+  margin: 0 6px 6px 0;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

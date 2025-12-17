@@ -778,3 +778,34 @@ h4 {
 .toggle-switch input[type="checkbox"]:checked + .toggle-label {
   color: var(--primary);
 }
+
+/* Skeleton Loading Styles for App */
+.skeleton-input {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  color: transparent;
+  cursor: not-allowed;
+}
+
+.skeleton-results {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+  color: transparent;
+  display: inline-block;
+  width: 120px;
+  height: 16px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

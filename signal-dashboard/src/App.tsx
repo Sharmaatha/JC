@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { getSignals, checkDateExists, scrapeDate } from "./api";
 import SignalCard, { SkeletonCard } from "./components/SignalCard";
+import DashboardStats from "./components/DashboardStats";
 import "./App.css";
 
 interface SignalProduct {
@@ -30,8 +31,6 @@ export default function App() {
   const [signalFilter, setSignalFilter] = useState("all");
   const [sortBy, setSortBy] = useState("none");
   const [viewFilterDate, setViewFilterDate] = useState("");
-
-  // NEW: Unlimited scrape toggle
   const [unlimitedScrape, setUnlimitedScrape] = useState(false);
 
   // Infinite scroll
@@ -45,8 +44,6 @@ export default function App() {
   // Polling state
   const [isPolling, setIsPolling] = useState(false);
   const pollingIntervalRef = useRef<number | null>(null);
-
-  // Loading timeout to prevent stuck loading states
   const loadingTimeoutRef = useRef<number | null>(null);
 
   const load = async (dateFilter?: string) => {
@@ -55,7 +52,6 @@ export default function App() {
         setLoading(true);
       }
 
-      // Set a timeout to prevent infinite loading (30 seconds)
       if (loadingTimeoutRef.current) {
         clearTimeout(loadingTimeoutRef.current);
       }
@@ -70,7 +66,6 @@ export default function App() {
       setSignals(data ?? []);
       setLoading(false);
 
-      // Clear the timeout since loading completed successfully
       if (loadingTimeoutRef.current) {
         clearTimeout(loadingTimeoutRef.current);
         loadingTimeoutRef.current = null;
@@ -78,7 +73,6 @@ export default function App() {
     } catch (error) {
       console.error("Error loading signals:", error);
       setLoading(false);
-      // Clear timeout on error
       if (loadingTimeoutRef.current) {
         clearTimeout(loadingTimeoutRef.current);
         loadingTimeoutRef.current = null;
@@ -104,7 +98,7 @@ export default function App() {
       setViewFilterDate("");
       stopPolling();
       setDisplayCount(10);
-      setLoading(true); // Ensure loading state is set
+      setLoading(true);
       await load();
       return;
     }
@@ -112,7 +106,7 @@ export default function App() {
     setViewFilterDate(pickedDate);
     setScrapeError(null);
     setDisplayCount(10);
-    setLoading(true); // Set loading when starting date check
+    setLoading(true);
 
     try {
       const checkRes = await checkDateExists(pickedDate);
@@ -121,30 +115,29 @@ export default function App() {
       if (!checkRes.data.exists) {
         setScraping(true);
         setScrapeError(null);
-        setLoading(false); // Clear general loading when scraping starts
+        setLoading(false);
 
         try {
-          // Pass unlimited flag to scrapeDate
           await scrapeDate(pickedDate, unlimitedScrape);
-          setLoading(true); // Set loading for final data load
+          setLoading(true);
           await load(pickedDate);
           setScraping(false);
           setLoading(false);
         } catch (error: any) {
           setScraping(false);
-          setLoading(false); // Ensure loading is cleared on error
+          setLoading(false);
           const errorMsg =
             error.response?.data?.detail || "Scraping failed. Please try again.";
           setScrapeError(errorMsg);
         }
       } else {
-        setLoading(true); // Ensure loading is set before load call
+        setLoading(true);
         await load(pickedDate);
         setLoading(false);
       }
     } catch (error) {
       console.error("Error checking date:", error);
-      setLoading(false); // Clear loading on error
+      setLoading(false);
     }
   };
 
@@ -161,7 +154,6 @@ export default function App() {
   useEffect(() => {
     return () => {
       stopPolling();
-      // Clear loading timeout on unmount
       if (loadingTimeoutRef.current) {
         clearTimeout(loadingTimeoutRef.current);
       }
@@ -257,15 +249,14 @@ export default function App() {
     setViewFilterDate("");
     setScrapeError(null);
     setDisplayCount(10);
-    setUnlimitedScrape(false); // Reset unlimited toggle
+    setUnlimitedScrape(false);
     stopPolling();
     load();
   }
 
-  // Render skeleton cards during loading
   const renderSkeletonCards = () => {
     const skeletonCards = [];
-    for (let i = 0; i < 10; i++) { // Show 10 skeleton cards
+    for (let i = 0; i < 10; i++) {
       skeletonCards.push(<SkeletonCard key={`skeleton-${i}`} />);
     }
     return skeletonCards;
@@ -275,95 +266,53 @@ export default function App() {
     return (
       <div className="layout">
         <div className="content">
-          <div className="header-section">
-            <h1>Startup Signal Dashboard</h1>
-            <p className="subtitle">Track and analyze emerging startup signals</p>
+          {/* NEW HEADER */}
+          <div className="header-section-new">
+            <div className="gradient-mesh"></div>
+            <div className="header-content">
+              <h1>Startup Signal Dashboard</h1>
+              <p className="subtitle">Track and analyze emerging startup signals</p>
+            </div>
           </div>
 
-          {/* Products wrapper - all controls + grid inside constrained width */}
           <div className="content-inner">
-            {/* ======= CLEAN TOP SEARCH BAR ======= */}
             <div className="top-search-container">
               <div className="top-search-box">
-                <svg
-                  className="search-icon"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18.5 18.5l-4-4"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
+                <svg className="search-icon" width="16" height="16" viewBox="0 0 20 20">
+                  <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18.5 18.5l-4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
                 </svg>
-
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="top-search-input skeleton-input"
-                  disabled
-                />
+                <input type="text" placeholder="Search products..." className="top-search-input skeleton-input" disabled />
               </div>
             </div>
 
-            {/* ======= FILTER TOOLBAR ======= */}
             <div className="filter-toolbar">
               <div className="filter-col">
                 <label>Scrape Mode</label>
                 <label className="toggle-switch">
                   <input type="checkbox" disabled />
-                  <span className="toggle-label">
-                    🔓 Unlimited
-                  </span>
+                  <span className="toggle-label">🔓 Unlimited</span>
                 </label>
               </div>
-
               <div className="filter-col">
                 <label>Date</label>
-                <input
-                  type="date"
-                  className="filter-input skeleton-input"
-                  disabled
-                />
+                <input type="date" className="filter-input skeleton-input" disabled />
               </div>
-
               <div className="filter-col">
                 <label>Type</label>
-                <select className="filter-input skeleton-input" disabled>
-                  <option>All</option>
-                </select>
+                <select className="filter-input skeleton-input" disabled><option>All</option></select>
               </div>
-
               <div className="filter-col">
                 <label>Score</label>
-                <select className="filter-input skeleton-input" disabled>
-                  <option>All</option>
-                </select>
+                <select className="filter-input skeleton-input" disabled><option>All</option></select>
               </div>
-
               <div className="filter-col">
                 <label>Sort</label>
-                <select className="filter-input skeleton-input" disabled>
-                  <option>Default</option>
-                </select>
+                <select className="filter-input skeleton-input" disabled><option>Default</option></select>
               </div>
-
               <div className="filter-col">
                 <label>&nbsp;</label>
                 <button className="reset-btn-final" disabled>
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                   </svg>
@@ -371,12 +320,10 @@ export default function App() {
               </div>
             </div>
 
-            {/* Results display count */}
             <div className="results-info">
               <span className="skeleton-text skeleton-results">Loading products...</span>
             </div>
 
-            {/* Skeleton cards grid */}
             <div className="signals-grid">
               {renderSkeletonCards()}
             </div>
@@ -389,22 +336,21 @@ export default function App() {
   return (
     <div className="layout">
       <div className="content">
-        <div className="header-section">
-          <h1>Startup Signal Dashboard</h1>
-          <p className="subtitle">Track and analyze emerging startup signals</p>
+        {/* NEW HEADER */}
+        <div className="header-section-new">
+          <div className="gradient-mesh"></div>
+          <div className="header-content">
+            <h1>Startup Signal Dashboard</h1>
+            <p className="subtitle">Track and analyze emerging startup signals</p>
+          </div>
         </div>
 
-        {/* Status Notifications */}
         {scraping && (
           <div className="alert alert-warning">
             <span className="alert-icon">⏳</span>
             <div>
               <strong>Scraping in progress...</strong>
-              <p>
-                {unlimitedScrape
-                  ? "Fetching ALL products for this date. This may take 5-15 minutes."
-                  : "Fetching Product Hunt data. This may take 2-5 minutes."}
-              </p>
+              <p>{unlimitedScrape ? "Fetching ALL products for this date. This may take 5-15 minutes." : "Fetching Product Hunt data. This may take 2-5 minutes."}</p>
             </div>
           </div>
         )}
@@ -419,93 +365,45 @@ export default function App() {
           </div>
         )}
 
-        {/* Products wrapper - all controls + grid inside constrained width */}
         <div className="content-inner">
-          {/* ======= CLEAN TOP SEARCH BAR ======= */}
+          {/* NEW: Dashboard Stats Cards */}
+          <DashboardStats signals={signals} />
+
           <div className="top-search-container">
             <div className="top-search-box">
-              <svg
-                className="search-icon"
-                width="16"
-                height="16"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18.5 18.5l-4-4"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  fill="none"
-                />
+              <svg className="search-icon" width="16" height="16" viewBox="0 0 20 20">
+                <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM18.5 18.5l-4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
               </svg>
-
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="top-search-input"
-              />
-
+              <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} className="top-search-input" />
               {search && (
-                <button
-                  className="clear-top-search"
-                  onClick={() => setSearch("")}
-                  aria-label="Clear search"
-                >
-                  ✕
-                </button>
+                <button className="clear-top-search" onClick={() => setSearch("")} aria-label="Clear search">✕</button>
               )}
             </div>
           </div>
 
-          {/* ======= FILTER TOOLBAR ======= */}
           <div className="filter-toolbar">
-            {/* NEW: Unlimited Scrape Toggle */}
             <div className="filter-col">
               <label>Scrape Mode</label>
               <label className="toggle-switch">
-                <input
-                  type="checkbox"
-                  checked={unlimitedScrape}
-                  onChange={(e) => setUnlimitedScrape(e.target.checked)}
-                />
-                <span className="toggle-label">
-                  {unlimitedScrape ? "🔓 Unlimited" : "🔒 Limited (50)"}
-                </span>
+                <input type="checkbox" checked={unlimitedScrape} onChange={(e) => setUnlimitedScrape(e.target.checked)} />
+                <span className="toggle-label">{unlimitedScrape ? "🔓 Unlimited" : "🔒 Limited (50)"}</span>
               </label>
             </div>
-
             <div className="filter-col">
               <label>Date</label>
-              <input
-                type="date"
-                value={viewFilterDate}
-                onChange={(e) => handleViewFilterDateChange(e.target.value)}
-                className="filter-input"
-              />
+              <input type="date" value={viewFilterDate} onChange={(e) => handleViewFilterDateChange(e.target.value)} className="filter-input" />
             </div>
-
             <div className="filter-col">
               <label>Type</label>
-              <select
-                className="filter-input"
-                value={signalFilter}
-                onChange={(e) => setSignalFilter(e.target.value)}
-              >
+              <select className="filter-input" value={signalFilter} onChange={(e) => setSignalFilter(e.target.value)}>
                 <option value="all">All</option>
                 <option value="signal">Signal</option>
                 <option value="not-signal">Not Signal</option>
               </select>
             </div>
-
             <div className="filter-col">
               <label>Score</label>
-              <select
-                className="filter-input"
-                value={scoreFilter}
-                onChange={(e) => setScoreFilter(e.target.value)}
-              >
+              <select className="filter-input" value={scoreFilter} onChange={(e) => setScoreFilter(e.target.value)}>
                 <option value="all">All</option>
                 <option value="strong">Strong</option>
                 <option value="moderate">Moderate</option>
@@ -514,14 +412,9 @@ export default function App() {
                 <option value="60plus">≥ 60</option>
               </select>
             </div>
-
             <div className="filter-col">
               <label>Sort</label>
-              <select
-                className="filter-input"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
+              <select className="filter-input" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
                 <option value="none">Default</option>
                 <option value="score_desc">High → Low</option>
                 <option value="score_asc">Low → High</option>
@@ -529,25 +422,10 @@ export default function App() {
                 <option value="name_desc">Z → A</option>
               </select>
             </div>
-
             <div className="filter-col">
               <label>&nbsp;</label>
-              <button
-                className="reset-btn-final reset-tooltip"
-                onClick={resetFilters}
-                aria-label="Reset filters"
-                data-tooltip="Reset filters"
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+              <button className="reset-btn-final reset-tooltip" onClick={resetFilters} aria-label="Reset filters" data-tooltip="Reset filters">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -555,10 +433,10 @@ export default function App() {
             </div>
           </div>
 
-          {/* Results display count */}
           <div className="results-info">
             <span>Showing {displayed.length} products</span>
           </div>
+
           {displayed.length === 0 ? (
             <div className="empty-state">
               <h3>No signals found</h3>
@@ -569,7 +447,6 @@ export default function App() {
               {displayed.map((s) => (
                 <SignalCard key={s.id} item={s} />
               ))}
-
               {displayed.length < sorted.length && (
                 <div ref={observerTarget} className="loading-more">
                   <div className="spinner-small"></div>
@@ -579,7 +456,6 @@ export default function App() {
             </div>
           )}
         </div>
-        {/* END content-inner */}
       </div>
     </div>
   );

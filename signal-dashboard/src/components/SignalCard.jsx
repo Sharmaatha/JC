@@ -1,5 +1,6 @@
 import React from "react";
 import "./SignalCard.css";
+import ScoreGauge from "./ScoreGauge";
 
 // Skeleton loading component
 export function SkeletonCard() {
@@ -83,11 +84,16 @@ export default function SignalCard({ item }) {
             {/* signal badge */}
             {item.is_signal && <span className="signal-badge">SIGNAL</span>}
 
-            {/* score */}
-            {item.signal_strength && item.signal_score !== null && (
-              <span className={`score-tag ${item.signal_strength}`}>
-                {`Score: ${item.signal_score}`}
-              </span>
+            {/* NEW: Score Gauge instead of text */}
+            {item.signal_score !== null && (
+              <div className="score-gauge-wrapper">
+                <ScoreGauge score={item.signal_score} />
+                <span className="score-strength-label">
+                  {item.signal_strength === "strong" ? "Strong" : 
+                   item.signal_strength === "moderate" ? "Moderate" : 
+                   item.signal_strength === "weak" ? "Weak" : ""}
+                </span>
+              </div>
             )}
           </div>
 

@@ -167,9 +167,8 @@ def scrape_full_pipeline(request: ScrapeRequest, sync: bool = False):
     """
     Full pipeline with unlimited scraping support
     """
-    day, month, year = request.date.split("-")
-    date_str = f"{year}-{month}-{day}"
-    limit = request.limit  # Can be None
+    date_str = request.date   
+    limit = request.limit
 
     if sync:
         product_ids = scrape_producthunt_only(date_str, limit=limit)
@@ -189,6 +188,7 @@ def scrape_full_pipeline(request: ScrapeRequest, sync: bool = False):
         "message": f"Full pipeline queued for {date_str}",
         "date_used": date_str
     }
+
 
 @app.get("/task/{task_id}")
 def get_task_status(task_id: str):

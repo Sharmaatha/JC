@@ -5,6 +5,7 @@ from models.models import Product
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field, validator
+# from scrapers.aliter_api import get_specter_client  # Commented out - Specter API not yet implemented
 
 router = APIRouter()
 

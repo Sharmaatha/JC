@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root{
   --bg: #f7f8fa;
   --surface: #ffffff;
@@ -12,7 +14,7 @@
   --primary: #2563eb;
   --primary-dark: #1d4ed
   --primary-light: #3b82f6;
-  --accent: #60a5fa;
+  --accent: #0b2f5c;
   --success: #10b981;
   --danger: #ef4444;
   --shadow-elev-1: 0 1px 2px rgba(16,24,40,0.04);
@@ -29,7 +31,10 @@
   --max-content-width: 1120px;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+:root {
+  --theme-border: rgba(37, 99, 235, 0.18); /* subtle blue-grey */
+  --theme-border-hover: rgba(37, 99, 235, 0.45);
+}
 
 body {
   margin: 0;
@@ -78,24 +83,156 @@ body {
   z-index: 2;
 }
 
-.header-section {
+/* Replace your old header styles with these */
+
+/* Remove or comment out the old .layout::before and .layout::after rules */
+
+.header-section-new {
   position: relative;
-  padding: 32px 32px 16px 32px;
-  margin-bottom: 0;
-  min-height: 180px;
+  min-height: 280px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  z-index: 3;
+  overflow: hidden;
+  margin-bottom: 40px;
 }
 
-.header-section h1 {
-  font-size: 32px;
-  font-weight: 700;
-  margin: 0 0 8px 0;
-  color: #ffffff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  letter-spacing: -0.5px;
+/* Animated Gradient Mesh Background */
+.gradient-mesh {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+    linear-gradient(135deg, #072f57 0%, #7998db 50%, #053d86 100%);
+  animation: meshMove 10s ease-in-out infinite;
+}
+
+@keyframes meshMove {
+  0%, 100% {
+    background-position: 0% 0%, 100% 100%, 50% 0%;
+  }
+  50% {
+    background-position: 100% 100%, 0% 0%, 0% 100%;
+  }
+}
+
+/* Floating particles effect */
+.gradient-mesh::before,
+.gradient-mesh::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(23, 23, 58, 0.2), transparent);
+  animation: float 5s ease-in-out infinite;
+}
+
+.gradient-mesh::before {
+  width: 300px;
+  height: 300px;
+  top: -100px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.gradient-mesh::after {
+  width: 400px;
+  height: 400px;
+  bottom: -150px;
+  right: -150px;
+  animation-delay: 2s;
+  background: radial-gradient(circle, rgba(9, 25, 51, 0.15), transparent);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+.header-content {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 40px 20px;
+  max-width: 800px;
+  animation: headerFadeIn 0.8s ease-out;
+}
+
+@keyframes headerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  display: inline-block;
+  animation: none;
+  filter: none;
+}
+
+@keyframes iconBounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+.header-content h1 {
+  font-size: 48px;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+  color: white;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+.header-content .subtitle {
+  margin: 0;
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Responsive header */
+@media (max-width: 768px) {
+  .header-section-new {
+    min-height: 220px;
+  }
+  
+  .header-icon {
+    font-size: 48px;
+  }
+  
+  .header-content h1 {
+    font-size: 32px;
+  }
+  
+  .header-content .subtitle {
+    font-size: 16px;
+  }
 }
 
 .subtitle {
@@ -449,8 +586,8 @@ h4 {
   background-color: #ffffff !important;
   padding: 14px 18px;
   border-radius: 14px;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-md);
+  border: 1px solid var(--theme-border);
+  box-shadow: var(--shadow-sm);
   transition: transform 220ms ease, box-shadow 220ms ease, border-color 200ms ease;
 }
 
@@ -463,11 +600,14 @@ h4 {
   color: var(--primary);
 }
 
-.top-search-box:hover {
-  box-shadow: var(--shadow-md), var(--blue-glow-shadow);
-  border-color: rgba(37, 99, 235, 0.3);
-  transform: translateY(-2px);
+.top-search-box:hover,
+.top-search-box:focus-within {
+  border-color: var(--theme-border-hover);
+  box-shadow: 
+    var(--shadow-md),
+    0 0 0 3px rgba(37, 99, 235, 0.08);
 }
+
 
 /* Real input */
 .top-search-box input,

@@ -27,6 +27,11 @@ SERPER_API_KEY: str = get_env_variable('SERPER_API_KEY')
 RAPIDAPI_KEY: str = get_env_variable('RAPIDAPI_KEY')
 GROQ_API_KEY: str = get_env_variable('GROQ_API_KEY')
 
+# Specter API Configuration
+SPECTER_API_KEY: str = os.getenv('SPECTER_API_KEY', '')
+SPECTER_SEARCH_ID: str = os.getenv('SPECTER_SEARCH_ID', '')
+SPECTER_BASE_URL: str = os.getenv('SPECTER_BASE_URL', 'https://api.specter.com')
+
 # Script Configuration
 CREATED_BY: str = get_env_variable('CREATED_BY', 'system_scraper')
 

@@ -320,3 +320,27 @@
     background-position: 200% 0;
   }
 }
+/* Add these styles to your existing SignalCard.css */
+
+.score-gauge-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: var(--surface-2);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: all 200ms ease;
+}
+
+.score-gauge-wrapper:hover {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  transform: translateY(-1px);
+}
+
+.score-strength-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-700);
+}

@@ -82,3 +82,6 @@ bin/
 *.un~
 *.swo
 *.swp
+# Celery beat runtime files
+celerybeat-schedule.dat
+celerybeat-schedule.dir

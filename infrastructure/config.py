@@ -38,3 +38,20 @@ CREATED_BY: str = get_env_variable('CREATED_BY', 'system_scraper')
 # API Configuration
 API_TIMEOUT: int = int(get_env_variable('API_TIMEOUT', '30'))
 MAX_RETRIES: int = int(get_env_variable('MAX_RETRIES', '3'))
+
+# Email Configuration - SMTP only
+def parse_email_list(email_string: str) -> list:
+    """Parse comma-separated email addresses"""
+    return [email.strip() for email in email_string.split(',') if email.strip()]
+
+EMAIL_FROM: str = get_env_variable('EMAIL_FROM')
+EMAIL_TO_RAW: str = get_env_variable('EMAIL_TO')
+EMAIL_TO: list = parse_email_list(EMAIL_TO_RAW)  # List of recipients for signal notifications
+
+# SMTP configuration
+EMAIL_SMTP_SERVER: str = get_env_variable('EMAIL_SMTP_SERVER', 'smtp.gmail.com')
+EMAIL_SMTP_PORT: int = int(get_env_variable('EMAIL_SMTP_PORT', '587'))
+EMAIL_USERNAME: str = get_env_variable('EMAIL_USERNAME')
+EMAIL_PASSWORD: str = get_env_variable('EMAIL_PASSWORD')
+if not EMAIL_FROM:
+    EMAIL_FROM = EMAIL_USERNAME

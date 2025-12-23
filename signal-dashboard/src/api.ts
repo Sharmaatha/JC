@@ -12,7 +12,7 @@ export const checkDateExists = (date: string) =>
 export const scrapeDate = (date: string, unlimited: boolean = false) => {
   const payload = unlimited
     ? { date: date, limit: null, use_streamlined: true }  // null = unlimited
-    : { date: date, limit: 50, use_streamlined: true };   // default limit
+    : { date: date, limit: 5, use_streamlined: true };   // default limit
 
   return axios.post(`${API}/scrape?sync=true`, payload);
 };

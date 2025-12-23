@@ -1,10 +1,11 @@
 import logging
 from typing import Optional, List
-from datetime import datetime
+from datetime import datetime, timedelta
 from infrastructure.database import Database
 from models.models import Product
 from llm.signal_detector import SignalDetector
 from models.models import Company
+from infrastructure.email_service import EmailService
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,8 @@ def print_section_header(title: str):
     print(title)
     print_separator()
 
-def analyze_signals(limit: Optional[int] = None, product_ids: Optional[List[int]] = None):
+def analyze_signals(limit: Optional[int] = None, product_ids: Optional[List[int]] = None, is_automatic: bool = False, scrape_date: Optional[str] = None):
+    from datetime import datetime
     print_section_header("STEP 3: LLM Signal Analysis")
 
     signal_detector = SignalDetector()
@@ -26,6 +28,13 @@ def analyze_signals(limit: Optional[int] = None, product_ids: Optional[List[int]
             Product.status == 1,
             Product.is_reviewed == False
         )
+
+        # For automatic runs, only analyze products from the specified scrape date
+        if is_automatic and scrape_date:
+            from datetime import datetime
+            scrape_date_obj = datetime.strptime(scrape_date, "%Y-%m-%d").date()
+            query = query.filter(Product.created_at >= scrape_date_obj)
+            print(f"Processing products created on {scrape_date} (automatic mode)")
 
         if product_ids:
             query = query.filter(Product.id.in_(product_ids))
@@ -49,6 +58,7 @@ def analyze_signals(limit: Optional[int] = None, product_ids: Optional[List[int]
 
         success_count = 0
         failed_count = 0
+        newly_signaled_companies = []
 
         for idx, product in enumerate(pending_products, 1):
             print_section_header(
@@ -89,6 +99,21 @@ def analyze_signals(limit: Optional[int] = None, product_ids: Optional[List[int]
                         if company and not company.is_signal:
                             company.is_signal = True
                             db.db.add(company)
+
+                            # Track newly signaled companies for email notification
+                            # Extract logo the same way as the API (routes.py line 92)
+                            ph_data = product.product_metadata.get('product_hunt', {}) if product.product_metadata else {}
+                            logo_url = ph_data.get('thumbnail_url') or ph_data.get('thumbnail')
+
+                            newly_signaled_companies.append({
+                                'company_id': company.id,
+                                'company_name': company.company_name,
+                                'score': product.signal_score,
+                                'product_name': product.product_name,
+                                'logo_url': logo_url,
+                                'launch_date': product.launch_date.strftime("%B %d, %Y") if product.launch_date else None,
+                                'created_date': product.created_at.strftime("%Y-%m-%d") if product.created_at else scrape_date
+                            })
                     
                     db.db.commit()
 
@@ -123,7 +148,33 @@ def analyze_signals(limit: Optional[int] = None, product_ids: Optional[List[int]
         print(f"Success: {success_count}")
         print(f"Failed: {failed_count}")
         print(f"Total Processed: {len(pending_products)}")
+        print(f"New Signal Companies: {len(newly_signaled_companies)}")
         print_separator()
+
+        # Send email notification for newly signaled companies (only for automatic runs)
+        if newly_signaled_companies and is_automatic:
+            try:
+                print(f"Sending email notification for {len(newly_signaled_companies)} new signal companies...")
+
+                # Group signals by their creation date
+                signals_by_date = {}
+                for signal in newly_signaled_companies:
+                    date_key = signal.get('created_date', scrape_date or 'unknown')
+                    if date_key not in signals_by_date:
+                        signals_by_date[date_key] = []
+                    signals_by_date[date_key].append(signal)
+
+                email_service = EmailService()
+
+                # Send separate email for each date
+                for date_str, signals in signals_by_date.items():
+                    print(f"Sending email for {len(signals)} signals from {date_str}")
+                    email_service.send_signal_notification(signals, date_str)
+
+                print("Email notifications sent successfully!")
+            except Exception as e:
+                print(f"Failed to send email notification: {e}")
+                logger.error(f"Email notification failed: {e}")
 
 if __name__ == "__main__":
     import argparse

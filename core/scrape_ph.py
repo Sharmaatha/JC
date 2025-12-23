@@ -49,10 +49,11 @@ def scrape_producthunt_only(date_str: str, limit: int = None) -> List[int]:
             print(f"Fetching page {page_num} (cursor: {current_cursor or 'initial'})")
             print(f"{'='*60}")
 
-            # Fetch next batch using complexity-aware batch size
+            # Fetch next batch - use limit as batch size when limit is set
+            batch_limit = limit if limit else None
             scrape_result = ph_scraper.get_products_by_date(
                 date_str,
-                limit=None,  # Use calculated safe batch size
+                limit=batch_limit,  # Use limit as batch size when specified
                 after_cursor=current_cursor
             )
             

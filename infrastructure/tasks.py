@@ -10,7 +10,7 @@ import traceback
 
 
 @celery_app.task(name="tasks.scrape_task", bind=True)
-def scrape_task(self, date_str: str, limit: int = 50, use_streamlined: bool = True):
+def scrape_task(self, date_str: str, limit: int = 10, use_streamlined: bool = True):
     """
     STEP 1: Scrape Product Hunt (None = unlimited)
     use_streamlined=True uses optimized complexity-aware scraping
@@ -97,7 +97,7 @@ def full_pipeline_task(self, date_str: str, limit: int = None):
             }
 
         enrich_social_links(product_ids=product_ids)
-        analyze_signals(product_ids=product_ids)
+        analyze_signals(product_ids=product_ids, is_automatic=False)  # Manual pipeline, don't send emails
 
         return {
             "status": "success",
@@ -120,7 +120,7 @@ def auto_scrape_yesterday():
         yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
         print(f"[CELERY AUTO-TASK] Starting automatic scrape for {yesterday}")
 
-        product_ids = scrape_producthunt_only(yesterday, limit=3)
+        product_ids = scrape_producthunt_only(yesterday, limit=5)
 
         print(f"[CELERY AUTO-TASK] Auto scrape completed for {yesterday}. Products: {len(product_ids)}")
         return {
@@ -143,9 +143,13 @@ def auto_enrich_task():
     try:
         print(f"[CELERY AUTO-TASK] Starting automatic social enrichment")
 
-        enrich_social_links(limit=10)
+        # Get yesterday's date for enrichment
+        from datetime import datetime, timedelta
+        yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-        print(f"[CELERY AUTO-TASK] Auto enrichment completed")
+        enrich_social_links(limit=5, is_automatic=True, scrape_date=yesterday)
+
+        print(f"[CELERY AUTO-TASK] Auto enrichment completed for {yesterday}")
         return {
             "status": "success",
             "message": "Automatic social enrichment completed"
@@ -160,12 +164,16 @@ def auto_enrich_task():
 def auto_analyze_task():
     """
     Automatic analysis task - runs every 6 hours (20 minutes after scrape)
-
+    This will trigger email notifications for newly signaled companies from yesterday's scrape
     """
     try:
         print(f"[CELERY AUTO-TASK] Starting automatic signal analysis")
 
-        analyze_signals(limit=10)
+        # Get yesterday's date for email notifications
+        from datetime import datetime, timedelta
+        yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+
+        analyze_signals(limit=5, is_automatic=True, scrape_date=yesterday)
 
         print(f"[CELERY AUTO-TASK] Auto analysis completed")
         return {

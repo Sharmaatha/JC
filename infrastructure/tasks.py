@@ -10,7 +10,7 @@ import traceback
 
 
 @celery_app.task(name="tasks.scrape_task", bind=True)
-def scrape_task(self, date_str: str, limit: int = 10, use_streamlined: bool = True):
+def scrape_task(self, date_str: str, limit: int = 50, use_streamlined: bool = True):
     """
     STEP 1: Scrape Product Hunt (None = unlimited)
     use_streamlined=True uses optimized complexity-aware scraping
@@ -120,7 +120,7 @@ def auto_scrape_yesterday():
         yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
         print(f"[CELERY AUTO-TASK] Starting automatic scrape for {yesterday}")
 
-        product_ids = scrape_producthunt_only(yesterday, limit=10)
+        product_ids = scrape_producthunt_only(yesterday, limit=50)
 
         print(f"[CELERY AUTO-TASK] Auto scrape completed for {yesterday}. Products: {len(product_ids)}")
         return {
@@ -147,7 +147,7 @@ def auto_enrich_task():
         from datetime import datetime, timedelta
         yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-        enrich_social_links(limit=10, is_automatic=True, scrape_date=yesterday)
+        enrich_social_links(limit=50, is_automatic=True, scrape_date=yesterday)
 
         print(f"[CELERY AUTO-TASK] Auto enrichment completed for {yesterday}")
         return {
@@ -173,7 +173,7 @@ def auto_analyze_task():
         from datetime import datetime, timedelta
         yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-        analyze_signals(limit=10, is_automatic=True, scrape_date=yesterday)
+        analyze_signals(limit=50, is_automatic=True, scrape_date=yesterday)
 
         print(f"[CELERY AUTO-TASK] Auto analysis completed")
         return {

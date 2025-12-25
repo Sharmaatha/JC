@@ -3,7 +3,6 @@ Celery application configuration
 """
 from celery import Celery
 from celery.schedules import crontab
-from datetime import timedelta
 import os
 from dotenv import load_dotenv
 
@@ -32,29 +31,27 @@ celery_app.conf.update(
     task_time_limit=30 * 60,
 )
 
-# Celery Beat schedule - Multiple cron jobs (10 minute cycles)
-
+# Celery Beat schedule
 celery_app.conf.beat_schedule = {
 
-    # STEP 1: Scrape every 10 minutes
-    "auto-scrape-every-10-minutes": {
+    # STEP 1: Scrape every 6 hours
+    "auto-scrape-every-6-hours": {
         "task": "tasks.auto_scrape_yesterday",
-        "schedule": crontab(minute="*/10"),   # Every 10 minutes
+        "schedule": crontab(minute=0, hour="*/6"),  # 00:00, 06:00, 12:00, 18:00
     },
 
     # STEP 2: Enrich 10 minutes after scrape
-    "auto-enrich-10-min-after": {
+    "auto-enrich-10-min-after-scrape": {
         "task": "tasks.auto_enrich_task",
-        "schedule": crontab(minute="5,15,25,35,45,55"),  # 10 min after scrape
+        "schedule": crontab(minute=10, hour="*/6"),  # 00:10, 06:10, 12:10, 18:10
     },
 
-    # STEP 3: Analyze 10 minutes after enrich (20 min after scrape)
+    # STEP 3: Analyze 20 minutes after scrape
     "auto-analyze-20-min-after-scrape": {
         "task": "tasks.auto_analyze_task",
-        "schedule": crontab(minute="0,10,20,30,40,50"),  # 20 min after scrape
+        "schedule": crontab(minute=20, hour="*/6"),  # 00:20, 06:20, 12:20, 18:20
     },
 }
-
 
 if __name__ == "__main__":
     celery_app.start()

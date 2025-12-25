@@ -112,7 +112,8 @@ def analyze_signals(limit: Optional[int] = None, product_ids: Optional[List[int]
                                 'product_name': product.product_name,
                                 'logo_url': logo_url,
                                 'launch_date': product.launch_date.strftime("%B %d, %Y") if product.launch_date else None,
-                                'created_date': product.created_at.strftime("%Y-%m-%d") if product.created_at else scrape_date
+                                'created_date': product.created_at.strftime("%Y-%m-%d") if product.created_at else scrape_date,
+                                'product_metadata': product.product_metadata
                             })
                     
                     db.db.commit()

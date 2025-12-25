@@ -59,168 +59,157 @@ class EmailService:
         logger.info(f"Sent signal notification email for {len(new_signals)} companies on {scrape_date} to {len(self.to_emails)} recipients")
 
     def _create_signal_email_html(self, new_signals: List[Dict], scrape_date: str) -> str:
-        """Create HTML email content for signal notifications"""
-
-        # Convert scrape_date to readable format
         try:
             date_obj = datetime.strptime(scrape_date, "%Y-%m-%d")
             formatted_date = date_obj.strftime("%B %d, %Y")
         except:
             formatted_date = scrape_date
-
         html_template = """
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signal Companies Alert</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #f8f9fa;
-            padding: 20px;
-        }
-        .container {
-            background-color: white;
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            text-align: center;
-            border-bottom: 3px solid #007bff;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        .header h1 {
-            color: #007bff;
-            margin: 0;
-            font-size: 28px;
-        }
-        .signal-card {
-            border: 2px solid #28a745;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            background-color: #f8fff9;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .signal-item {
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 15px;
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .company-logo {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            object-fit: cover;
-            margin-right: 15px;
-            border: 2px solid #dee2e6;
-        }
-        .company-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .company-details h3 {
-            margin: 0 0 5px 0;
-            color: #28a745;
-            font-size: 20px;
-        }
-        .score-badge {
-            display: inline-block;
-            background-color: #28a745;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-        .launch-date {
-            color: #6c757d;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .date-info {
-            color: #6c757d;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #dee2e6;
-            color: #6c757d;
-            font-size: 12px;
-        }
-        .signal-count {
-            background-color: #e3f2fd;
-            color: #1976d2;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Signal Companies Alert</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f8;
+        padding: 20px;
+        margin: 0;
+    }
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    .header {
+        text-align: center;
+        border-bottom: 2px solid #2563eb;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    .header h2 {
+        margin: 0;
+        color: #2563eb;
+    }
+    .count {
+        text-align: center;
+        background: #e3f2fd;
+        padding: 8px;
+        border-radius: 6px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #1976d2;
+    }
+    .card {
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 14px;
+        background: #f9fafb;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .card:hover {
+        background: #f3f4f6;
+        border-color: #2563eb;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transform: translateY(-1px);
+    }
+    .logo {
+        width: 48px;
+        height: 48px;
+        border-radius: 6px;
+        background: #2563eb;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0 auto 8px;
+    }
+    .name {
+        font-weight: bold;
+        margin-bottom: 6px;
+    }
+    .score {
+        color: #16a34a;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .footer {
+        text-align: center;
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 25px;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 15px;
+    }
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 Signal Companies Alert</h1>
-            <p>Exciting new companies showing strong signal indicators!</p>
-        </div>
+<div class="container">
 
-        <div class="signal-count">
-            {{ signal_count }} new signal companies detected for {{ formatted_date }}
-        </div>
+<div class="header">
+    <h2>🚀 Signal Companies Alert</h2>
+    <p>New companies showing strong signals detected</p>
+</div>
 
-        <div class="signal-card">
-            {% for signal in new_signals %}
-            <div class="signal-item">
-                <div class="company-info">
-                    {% if signal.logo_url %}
-                    <img src="{{ signal.logo_url }}" alt="{{ signal.company_name }} logo" class="company-logo">
-                    {% else %}
-                    <div class="company-logo" style="background-color: #007bff; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">
-                        {{ signal.company_name[0].upper() }}
-                    </div>
-                    {% endif %}
-                    <div class="company-details">
-                        <h3>{{ signal.company_name }}</h3>
-                        <span class="score-badge">Signal Score: {{ signal.score }}/100</span>
-                        {% if signal.launch_date %}
-                        <div class="launch-date">Launched: {{ signal.launch_date }}</div>
-                        {% endif %}
-                    </div>
-                </div>
+<div class="count">
+    {{ signal_count }} signal companies · {{ formatted_date }}
+</div>
+
+<table width="100%" cellpadding="10" cellspacing="0" role="presentation">
+<tr>
+{% for signal in new_signals %}
+    <td width="33%" valign="top">
+        {% if signal.product_metadata and signal.product_metadata.get('product_hunt') and signal.product_metadata['product_hunt'].get('website') %}
+        <a href="{{ signal.product_metadata['product_hunt']['website'] }}" class="card" target="_blank" rel="noopener noreferrer">
+        {% else %}
+        <div class="card">
+        {% endif %}
+            {% if signal.logo_url %}
+                <img src="{{ signal.logo_url }}" width="48" height="48" style="border-radius:6px;">
+            {% else %}
+                <div class="logo">{{ signal.company_name[0].upper() }}</div>
+            {% endif %}
+            <div class="name">{{ signal.company_name }}</div>
+            <div class="score">Score: {{ signal.score }}/100</div>
+            {% if signal.launch_date %}
+            <div style="font-size:12px; color:#6b7280;">
+                {{ signal.launch_date }}
             </div>
-            {% endfor %}
+            {% endif %}
+        {% if signal.product_metadata and signal.product_metadata.get('product_hunt') and signal.product_metadata['product_hunt'].get('website') %}
+        </a>
+        {% else %}
         </div>
+        {% endif %}
+    </td>
 
-        <div class="footer">
-            <p>This email was automatically generated by the Signal Detector system.</p>
-            <p>Stay tuned for more signal insights!</p>
-        </div>
-    </div>
+    {% if loop.index % 3 == 0 %}
+</tr><tr>
+    {% endif %}
+{% endfor %}
+</tr>
+</table>
+
+<div class="footer">
+    This email was automatically generated by the Signal Detector system.
+</div>
+
+</div>
 </body>
 </html>
-        """
-
-        template = Template(html_template)
-        return template.render(
+"""
+        return Template(html_template).render(
             new_signals=new_signals,
             signal_count=len(new_signals),
             formatted_date=formatted_date
